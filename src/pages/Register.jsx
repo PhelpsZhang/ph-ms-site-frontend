@@ -6,7 +6,7 @@ import useAuth from '../store/auth'
 import Container from '../components/Container'
 
 const schema = z.object({
-  name: z.string().min(2, '至少 2 个字符'),
+  username: z.string().min(2, '至少 3 个字符'),
   email: z.string().email('请输入有效邮箱'),
   password: z.string().min(6, '至少 6 位'),
 })
@@ -34,8 +34,8 @@ export default function Register() {
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
           <div>
             <label className="block text-sm mb-1">昵称</label>
-            <input className="input" placeholder="你的昵称" {...register('name')} />
-            {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>}
+            <input className="input" placeholder="你的昵称" {...register('username')} />
+            {errors.username && <p className="text-sm text-red-600 mt-1">{errors.username.message}</p>}
           </div>
           <div>
             <label className="block text-sm mb-1">邮箱</label>
