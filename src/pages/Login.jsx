@@ -6,7 +6,7 @@ import useAuth from '../store/auth'
 import Container from '../components/Container'
 
 const schema = z.object({
-  email: z.string().email('请输入有效邮箱'),
+  identifier: z.string().email('请输入有效邮箱'),
   password: z.string().min(6, '至少 6 位'),
 })
 
@@ -21,7 +21,7 @@ export default function Login() {
   })
 
   const onSubmit = async (values) => {
-    const res = await login(values.email, values.password)
+    const res = await login(values.identifier, values.password)
     if (res.ok) navigate(from, { replace: true })
     else alert(res.error || '登录失败')
   }
@@ -33,8 +33,8 @@ export default function Login() {
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
           <div>
             <label className="block text-sm mb-1">邮箱</label>
-            <input className="input" placeholder="you@example.com" {...register('email')} />
-            {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>}
+            <input className="input" placeholder="you@example.com" {...register('identifier')} />
+            {errors.identifier && <p className="text-sm text-red-600 mt-1">{errors.identifier.message}</p>}
           </div>
           <div>
             <label className="block text-sm mb-1">密码</label>

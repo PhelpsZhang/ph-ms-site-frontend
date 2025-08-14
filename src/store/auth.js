@@ -6,10 +6,11 @@ const useAuth = create((set, get) => ({
   user: JSON.parse(localStorage.getItem('user') || 'null'),
   loading: false,
 
-  login: async (email, password) => {
+  login: async (identifier, password) => {
     set({ loading: true })
     try {
-      const { data } = await api.post('/auth/login', { email, password })
+      const payload = { usernameOrEmail: identifier.trim(), password}
+      const { data } = await api.post('/auth/login', payload)
       localStorage.setItem('token', data.token)
       if (data.user) localStorage.setItem('user', JSON.stringify(data.user))
       set({ token: data.token, user: data.user ?? get().user, loading: false })
