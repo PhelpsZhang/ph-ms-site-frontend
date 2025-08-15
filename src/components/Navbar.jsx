@@ -1,9 +1,12 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import useAuth from '../store/auth'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout } from '../store/authSlice'
 
 export default function Navbar() {
   const navigate = useNavigate()
-  const { token, user, logout } = useAuth()
+  const dispatch = useDispatch()
+  const token = useSelector((s) => s.auth.token)
+  const user = useSelector((s) => s.auth.user)
 
   const linkClass = ({ isActive }) =>
     `px-3 py-2 rounded-xl hover:bg-gray-100 ${isActive ? 'bg-gray-100' : ''}`
@@ -24,7 +27,7 @@ export default function Navbar() {
               <NavLink to="/dashboard" className={linkClass}>面板</NavLink>
               <button
                 className="btn btn-ghost"
-                onClick={() => { logout(); navigate('/'); }}
+                onClick={() => { dispatch(logout()); navigate('/'); }}
               >退出</button>
             </>
           ) : (

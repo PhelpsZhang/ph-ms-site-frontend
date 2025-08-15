@@ -1,27 +1,30 @@
 import { useEffect, useState } from 'react'
-import useAuth from '../store/auth'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchMe, setUser } from '../store/authSlice'
 import api from '../lib/api'
 import Container from '../components/Container'
 
 export default function Dashboard() {
-  const { user, fetchMe } = useAuth()
+  const dispatch = useDispatch()
+  const user = useSelector((s) => s.auth.user)
   const [name, setName] = useState(user?.name || '')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    if (!user) fetchMe()
-  }, [])
+    if (!user) dispatch(fetchMe())
+  }, [user, dispatch])
+
+  useEffect(() => {
+    setName(user?.name || '')
+  }, [user])
 
   const onSave = async () => {
     setSaving(true)
     try {
       const { data } = await api.put('/users/me', { name })
       setMessage('已保存')
-      // 简化处理：本地更新
-      const nextUser = { ...(user || {}), ...data }
-      localStorage.setItem('user', JSON.stringify(nextUser))
-      // 触发一次 fetchMe 也可以，这里就地更新
+      dispatch(setUser({ ...(user || {}), ...data }))
     } catch (e) {
       setMessage(e.response?.data?.message || e.message)
     } finally { setSaving(false) }

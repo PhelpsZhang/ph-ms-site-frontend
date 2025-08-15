@@ -4,7 +4,7 @@
 - React 18
 - React Router v6
 - Axios
-- Zustand（认证与全局轻状态）
+- Redux Toolkit（认证与全局状态）
 - Tailwind CSS（快速样式）
 - React Hook Form + Zod（表单校验）
 
@@ -21,5 +21,5 @@
 ## 自定义与扩展
 - 新增页面：在 `src/pages` 新建组件，并在 `App.jsx` 的 `<Routes>` 中添加路由。
 - 样式：使用 Tailwind 原子类或在 `index.css` 中按需抽象复用类。
-- 状态：轻度场景继续用 Zustand；如果后续变复杂，可换 RTK 等。
+- 状态：统一使用 Redux Toolkit 管理全局状态，也可按模块拆分多个 slice。
 - UI：本示例保持极简，你可以引入 shadcn/ui 或 Headless UI 进一步美化（需 Tailwind 环境）。

@@ -8,7 +8,7 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight">
-              Hello! I am <span className="text-blue-600">Philips Z</span>
+              Hello, I am <span className="text-blue-600">Philips Z</span>
             </h1>
             <p className="mt-4 text-gray-600">
               这里是我的个人网站：展示项目、记录博客、提供简单的注册/登录，以及一些可扩展的功能模块示例。
