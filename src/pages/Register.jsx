@@ -8,7 +8,7 @@ import Container from '../components/Container'
 
 const schema = z.object({
   username: z.string().min(2, '至少 2 个字符'),
-  email: z.string().email('请输入有效邮箱'),
+  email: z.string().email('请输入有效邮箱').or(z.literal('')),
   password: z.string().min(6, '至少 6 位'),
 })
 

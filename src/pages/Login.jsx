@@ -7,7 +7,7 @@ import { login } from '../store/authSlice'
 import Container from '../components/Container'
 
 const schema = z.object({
-  email: z.string().email('请输入有效邮箱'),
+  email: z.string().min(3, '至少3位'),
   password: z.string().min(6, '至少 6 位'),
 })
 
