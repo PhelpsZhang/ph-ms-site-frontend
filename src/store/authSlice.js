@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import api from '../lib/api'
+import { normalizeAuthResponse, normalizeMeResponse } from '../utils/normalizers'
+import { mapLoginRequest, mapRegisterRequest } from '../utils/mappers'
 
 const initialState = {
   token: localStorage.getItem('token'),
@@ -10,10 +12,11 @@ const initialState = {
 
 export const login = createAsyncThunk(
   'auth/login',
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, usernameOrEmail, password }, { rejectWithValue }) => {
     try {
-      const { data } = await api.post('/auth/login', { email, password })
-      return data
+      const body = mapLoginRequest({ email, usernameOrEmail, password })
+      const { data } = await api.post('/auth/login', body)
+      return normalizeAuthResponse(data)
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message)
     }
@@ -24,7 +27,9 @@ export const register = createAsyncThunk(
   'auth/register',
   async (payload, { rejectWithValue }) => {
     try {
-      const { data } = await api.post('/auth/register', payload)
+      const body = mapRegisterRequest(payload)
+      const { data } = await api.post('/auth/register', body)
+      console.log(data)
       return data
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message)
@@ -37,7 +42,7 @@ export const fetchMe = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await api.get('/auth/me')
-      return data
+      return normalizeMeResponse(data)
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message)
     }
@@ -61,28 +66,34 @@ const slice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(login.pending, (state) => { state.loading = true; state.error = null })
+      // pending
+      .addCase(login.pending,   (state) => { state.loading = true; state.error = null })
+      .addCase(register.pending,(state) => { state.loading = true; state.error = null })
+
+      // fulfilled（payload 已是 { token, user } 的统一结构）
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false
-        const d = action.payload || {}
-        if (d.token) { state.token = d.token; localStorage.setItem('token', d.token) }
-        if (d.user)  { state.user  = d.user;  localStorage.setItem('user', JSON.stringify(d.user)) }
+        const { token, user } = action.payload || {}
+        if (token) { state.token = token; localStorage.setItem('token', token) }
+        if (user)  { state.user  = user;  localStorage.setItem('user', JSON.stringify(user)) }
       })
-      .addCase(login.rejected, (state, action) => { state.loading = false; state.error = action.payload || String(action.error.message) })
-
-      .addCase(register.pending, (state) => { state.loading = true; state.error = null })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false
-        const d = action.payload || {}
-        if (d.token) { state.token = d.token; localStorage.setItem('token', d.token) }
-        if (d.user)  { state.user  = d.user;  localStorage.setItem('user', JSON.stringify(d.user)) }
+        // const { token, user } = action.payload || {}
+        // if (token) { state.token = token; localStorage.setItem('token', token) }
+        // if (user)  { state.user  = user;  localStorage.setItem('user', JSON.stringify(user)) }
       })
-      .addCase(register.rejected, (state, action) => { state.loading = false; state.error = action.payload || String(action.error.message) })
+      // .addCase(fetchMe.fulfilled, (state, action) => {
+      //   const { user } = action.payload || {}
+      //   if (user) {
+      //     state.user = user
+      //     localStorage.setItem('user', JSON.stringify(user))
+      //   }
+      // })
 
-      .addCase(fetchMe.fulfilled, (state, action) => {
-        state.user = action.payload
-        localStorage.setItem('user', JSON.stringify(action.payload))
-      })
+      // rejected
+      .addCase(login.rejected,   (state, action) => { state.loading = false; state.error = action.payload || String(action.error?.message) })
+      .addCase(register.rejected,(state, action) => { state.loading = false; state.error = action.payload || String(action.error?.message) })
   }
 })
 
