@@ -13,8 +13,9 @@ export default function BlogList() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get('/blog/posts')
-        setPosts(Array.isArray(data) ? data : data?.items || [])
+        const { data } = await api.get('/blog/page')
+        const records = data?.data?.records ?? data?.data?.records?.items ?? []
+        setPosts(Array.isArray(records) ? records : records?.items || [])
       } catch (e) {
         setError(e.response?.data?.message || e.message)
       } finally { setLoading(false) }
@@ -26,16 +27,81 @@ export default function BlogList() {
       <h1 className="text-2xl font-bold">博客</h1>
       {loading && <Spinner />}
       {error && <p className="text-red-600 mt-3">{error}</p>}
-      <div className="grid md:grid-cols-2 gap-4 mt-6">
+      <div className="grid md:grid-cols-2 gap-6 mt-6">
         {posts.map((p) => (
-          <article key={p.id} className="card">
-            <h2 className="text-xl font-semibold">
-              <Link to={`/blog/${p.id}`} className="hover:underline">{p.title}</Link>
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">{formatDate(p.publishedAt)}</p>
-            <p className="mt-2 text-gray-700 line-clamp-3">{p.summary || p.excerpt}</p>
-            <div className="mt-3">
-              <Link to={`/blog/${p.id}`} className="btn btn-ghost">阅读全文 →</Link>
+          <article
+            key={p.id}
+            className="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 flex flex-col"
+          >
+            {/* 封面图 */}
+            {p.coverImageUrl && (
+              <Link to={`/blog/${p.id}`}>
+                <img
+                  src={p.coverImageUrl}
+                  alt={p.title}
+                  className="w-full h-48 object-cover rounded-xl"
+                />
+              </Link>
+            )}
+
+            {/* 内容区域 */}
+            <div className="mt-4 flex-1 flex flex-col">
+              {/* 标题 */}
+              <h2 className="text-xl font-semibold line-clamp-2">
+                <Link
+                  to={`/blog/${p.id}`}
+                  className="hover:underline"
+                >
+                  {p.title}
+                </Link>
+              </h2>
+
+              {/* 作者 + 日期 */}
+              <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                <span>{p.authorName}</span>
+                <span>•</span>
+                <time>{formatDate(p.createDate)}</time>
+              </div>
+
+              {/* 摘要 */}
+              <p className="mt-2 text-gray-700 line-clamp-3">{p.summary}</p>
+
+              {/* 标签 */}
+              {p.tags?.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {p.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 text-xs bg-gray-100 rounded-full text-gray-600"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* 底部：浏览数 + 按钮 */}
+              <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+                <div className="flex items-center gap-1">
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span>{p.viewCount ?? 0}</span>
+                </div>
+                <Link
+                  to={`/blog/${p.id}`}
+                  className="btn btn-ghost btn-sm"
+                >
+                  阅读全文 →
+                </Link>
+              </div>
             </div>
           </article>
         ))}
