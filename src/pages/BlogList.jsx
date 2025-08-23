@@ -67,18 +67,15 @@ export default function BlogList() {
               <p className="mt-2 text-gray-700 line-clamp-3">{p.summary}</p>
 
               {/* 标签 */}
-              {p.tags?.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {p.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 text-xs bg-gray-100 rounded-full text-gray-600"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {p.tags?.map((tag) => {
+                const id = typeof tag === "string" ? tag : tag.id
+                const name = typeof tag === "string" ? tag : tag.name
+                return (
+                  <span key={id} className="px-2 py-0.5 text-xs bg-gray-100 rounded-full text-gray-600">
+                    #{name}
+                  </span>
+                )
+              })}
 
               {/* 底部：浏览数 + 按钮 */}
               <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
