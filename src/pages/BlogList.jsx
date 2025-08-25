@@ -1,26 +1,51 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import api from '../lib/api'
 import Container from '../components/Container'
 import Spinner from '../components/Spinner'
 import { formatDate } from '../utils/formatDate'
+import { current } from '@reduxjs/toolkit'
 
 export default function BlogList() {
   const [loading, setLoading] = useState(true)
   const [posts, setPosts] = useState([])
   const [error, setError] = useState('')
 
+  const [searchParams] = useSearchParams()
+  const location = useLocation()
+  
+
+  const queryDTO = useMemo(() => {
+    // 优先从navigate state取
+    if (location.state?.queryDTO) {
+      return location.state.queryDTO
+    }
+
+    // 否则从url? q= xx 解析
+    const q = searchParams.get("q")
+    const categoryId = searchParams.get("categoryId")
+
+    return {
+      current: 1,
+      size: 10,
+      filter: {
+        keyword: q || undefined,
+        categoryId: categoryId ? Number(categoryId) : undefined
+      }
+    }
+  }, [location.state, searchParams])
+
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get('/blog/page')
+        const { data } = await api.post('/blog/page', queryDTO)
         const records = data?.data?.records ?? data?.data?.records?.items ?? []
         setPosts(Array.isArray(records) ? records : records?.items || [])
       } catch (e) {
         setError(e.response?.data?.message || e.message)
       } finally { setLoading(false) }
     })()
-  }, [])
+  }, [queryDTO])  // 每次queryDTO变化都重发请求
 
   return (
     <Container className="py-10">
